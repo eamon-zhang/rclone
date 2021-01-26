@@ -17,12 +17,21 @@ Paths may be as deep as required, eg `remote:directory/subdirectory`.
 
 ## Setup
 
+### Default Setup
+
 To configure Jottacloud you will need to generate a personal security token in the Jottacloud web interface.
 You will the option to do in your [account security settings](https://www.jottacloud.com/web/secure)
 (for whitelabel version you need to find this page in its web interface).
 Note that the web interface may refer to this token as a JottaCli token.
 
-Here is an example of how to make a remote called `remote`.  First run:
+### Legacy Setup
+
+If you are using one of the whitelabel versions (Elgiganten, Com Hem Cloud) you may not have the option
+to generate a CLI token. In this case you'll have to use the legacy authentification. To to this select
+yes when the setup asks for legacy authentification and enter your username and password.
+The rest of the setup is identical to the default setup.
+
+Here is an example of how to make a remote called `remote` with the default setup.  First run:
 
     rclone config
 
@@ -34,7 +43,7 @@ n) New remote
 s) Set configuration password
 q) Quit config
 n/s/q> n
-name> jotta
+name> remote
 Type of storage to configure.
 Enter a string value. Press Enter for the default ("").
 Choose a number from below, or type in your own value
@@ -50,6 +59,11 @@ y) Yes
 n) No
 y/n> n
 Remote config
+Use legacy authentification?.
+This is only required for certain whitelabel versions of Jottacloud and not recommended for normal users.
+y) Yes
+n) No (default)
+y/n> n
 
 Generate a personal login token here: https://www.jottacloud.com/web/secure
 Login Token> <your token here>
@@ -62,9 +76,8 @@ y/n> y
 Please select the device to use. Normally this will be Jotta
 Choose a number from below, or type in an existing value
  1 > DESKTOP-3H31129
- 2 > fla1
- 3 > Jotta
-Devices> 3
+ 2 > Jotta
+Devices> 2
 Please select the mountpoint to user. Normally this will be Archive
 Choose a number from below, or type in an existing value
  1 > Archive
@@ -75,7 +88,6 @@ Mountpoints> 1
 --------------------
 [jotta]
 type = jottacloud
-user = 0xC4KE@gmail.com
 token = {........}
 device = Jotta
 mountpoint = Archive
@@ -136,8 +148,13 @@ flag.
 Note that Jottacloud requires the MD5 hash before upload so if the
 source does not have an MD5 checksum then the file will be cached
 temporarily on disk (wherever the `TMPDIR` environment variable points
-to) before it is uploaded.  Small files will be cached in memory - see
+to) before it is uploaded. Small files will be cached in memory - see
 the [--jottacloud-md5-memory-limit](#jottacloud-md5-memory-limit) flag.
+When uploading from local disk the source checksum is always available,
+so this does not apply. Starting with rclone version 1.52 the same is
+true for crypted remotes (in older versions the crypt backend would not
+calculate hashes for uploads from local disk, so the Jottacloud
+backend had to do it as described above).
 
 #### Restricted filename characters
 
@@ -205,16 +222,6 @@ Delete files permanently rather than putting them into the trash.
 
 - Config:      hard_delete
 - Env Var:     RCLONE_JOTTACLOUD_HARD_DELETE
-- Type:        bool
-- Default:     false
-
-#### --jottacloud-unlink
-
-Remove existing public link to file/folder with link command rather than creating.
-Default is false, meaning link command will create or retrieve public link.
-
-- Config:      unlink
-- Env Var:     RCLONE_JOTTACLOUD_UNLINK
 - Type:        bool
 - Default:     false
 
